@@ -20,9 +20,9 @@ new L.Hash(map);
 // Leaflet MiniMap
 var miniMap = new L.Control.MiniMap(
     L.tileLayer.provider("BasemapAT.basemap"), {
-        toggleDisplay: true,
-        minimized: true
-    }
+    toggleDisplay: true,
+    minimized: true
+}
 ).addTo(map);
 
 // thematische Layer
@@ -64,7 +64,7 @@ async function showStops(url) {
     let jsondata = await response.json();
     //console.log(response, jsondata);
     L.geoJSON(jsondata, {
-        pointToLayer: function(feature, latlng) {
+        pointToLayer: function (feature, latlng) {
             //console.log(feature.properties)
             return L.marker(latlng, {
                 icon: L.icon({
@@ -74,7 +74,7 @@ async function showStops(url) {
                 })
             });
         },
-        onEachFeature: function(feature, layer) {
+        onEachFeature: function (feature, layer) {
             let prop = feature.properties;
             layer.bindPopup(`
                 <h4><i class="fa-solid fa-bus"></i> ${prop.LINE_NAME}</h4>
@@ -108,7 +108,7 @@ async function showLines(url) {
                 dashArray: [10, 4]
             };
         },
-        onEachFeature: function(feature, layer) {
+        onEachFeature: function (feature, layer) {
             let prop = feature.properties;
             layer.bindPopup(`
             <h4><i class="fa-solid fa-bus"></i> ${prop.LINE_NAME}</h4>
@@ -120,8 +120,8 @@ async function showLines(url) {
             <br>
             </p>
         `);
-        lineNames[prop.LINE_ID] = prop.LINE_NAME;
-        //console.log(lineNames)
+            lineNames[prop.LINE_ID] = prop.LINE_NAME;
+            //console.log(lineNames)
         }
     }).addTo(themaLayer.lines);
 }
@@ -142,7 +142,7 @@ async function showZones(url) {
             };
         },
 
-        onEachFeature: function(feature, layer) {
+        onEachFeature: function (feature, layer) {
             let prop = feature.properties;
             layer.bindPopup(`
             <h4>Fußgängerzone ${prop.ADRESSE}</h4>
@@ -164,7 +164,7 @@ async function showSites(url) {
     let jsondata = await response.json();
     //console.log(response, jsondata);
     L.geoJSON(jsondata, {
-        pointToLayer: function(feature, latlng) {
+        pointToLayer: function (feature, latlng) {
             return L.marker(latlng, {
                 icon: L.icon({
                     iconUrl: "icons/photo.png",
@@ -173,7 +173,7 @@ async function showSites(url) {
                 })
             });
         },
-        onEachFeature: function(feature, layer) {
+        onEachFeature: function (feature, layer) {
             let prop = feature.properties;
             layer.bindPopup(`
                 <img src="${prop.THUMBNAIL}" alt="*">
@@ -192,7 +192,7 @@ async function showHotels(url) {
     let jsondata = await response.json();
     //console.log(response, jsondata);
     L.geoJSON(jsondata, {
-        pointToLayer: function(feature, latlng) {
+        pointToLayer: function (feature, latlng) {
             //console.log(feature.properties.KATEGORIE_TXT)
             let prop = feature.properties;
             let hotelIcon = "";
@@ -217,7 +217,7 @@ async function showHotels(url) {
                 })
             });
         },
-        onEachFeature: function(feature, layer) {
+        onEachFeature: function (feature, layer) {
             let prop = feature.properties;
             layer.bindPopup(`
                 <h3>${prop.BETRIEB}</h3>
@@ -232,3 +232,35 @@ async function showHotels(url) {
     }).addTo(themaLayer.hotels);
 }
 showHotels("https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:UNTERKUNFTOGD&srsName=EPSG:4326&outputFormat=json");
+
+//GeoLocation
+map.locate({
+    setView: true, maxZoom: 16
+}
+);
+
+function onLocationFound(evt) {
+    let radius = Math.round(evt.accuracy);
+//math.round zu Radius oder besser evt.accuracy hinzufügen, um die Ungenauigkeit zu runden
+    L.marker(evt.latlng).addTo(map)
+        .bindPopup(`You are within ${radius} meters from this point`).openPopup();
+
+    L.circle(evt.latlng, radius).addTo(map);
+}
+//Immer bei Maps-On Plugin mit Events bzw. evt arbeiten!
+map.on('locationfound', function onLocationFound(evt) {
+    let radius = Math.round(evt.accuracy);
+//math.round zu Radius oder besser evt.accuracy hinzufügen, um die Ungenauigkeit zu runden
+    L.marker(evt.latlng).addTo(map)
+        .bindPopup(`You are within ${radius} meters from this point`).openPopup();
+
+    L.circle(evt.latlng, radius).addTo(map);
+});
+
+function onLocationError(evt) {
+    console.log(evt)
+    alert(evt.message);
+}
+
+
+
