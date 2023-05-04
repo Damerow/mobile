@@ -235,32 +235,30 @@ showHotels("https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&ver
 
 //GeoLocation
 map.locate({
-    setView: true, maxZoom: 16
+    setView: true, maxZoom: 16,
+    watch: true //Location wird alle 10 Sekunden erneuert
 }
 );
 
-function onLocationFound(evt) {
-    let radius = Math.round(evt.accuracy);
-//math.round zu Radius oder besser evt.accuracy hinzufügen, um die Ungenauigkeit zu runden
-    L.marker(evt.latlng).addTo(map)
-        .bindPopup(`You are within ${radius} meters from this point`).openPopup();
+let circle = L.circle([0, 0], 0).addTo(map)
+let marker = L.marker([0, 0], 0).addTo(map)
 
-    L.circle(evt.latlng, radius).addTo(map);
-}
 //Immer bei Maps-On Plugin mit Events bzw. evt arbeiten!
-map.on('locationfound', function onLocationFound(evt) {
+map.on('locationfound', function (evt) {
     let radius = Math.round(evt.accuracy);
-//math.round zu Radius oder besser evt.accuracy hinzufügen, um die Ungenauigkeit zu runden
-    L.marker(evt.latlng).addTo(map)
-        .bindPopup(`You are within ${radius} meters from this point`).openPopup();
-
-    L.circle(evt.latlng, radius).addTo(map);
+    marker.setLatLng(evt.latlng); //Marker 
+    marker.bindTooltip(`You are within ${radius} meters from this point`).openTooltip();
+    // L.circle(evt.latlng, radius).addTo(map);
+    circle.setLatLng(evt.latlng);
+    circle.setRadius(radius);
 });
 
 function onLocationError(evt) {
     console.log(evt)
     alert(evt.message);
 }
+
+
 
 
 
